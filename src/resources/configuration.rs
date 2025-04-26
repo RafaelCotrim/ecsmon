@@ -8,21 +8,12 @@ pub struct SimulationConfiguration{
 
 impl Default for SimulationConfiguration {
     fn default() -> Self {
-        Self { simulation_time_step: 1. }
+        Self { simulation_time_step: 0.2 }
     }
 }
 
-#[derive(Resource)]
-pub struct DisplayConfiguration{
-    /// Number of pixels for each meter on the screen (px/m)
-    pub pixels_per_meter: f32,
-}
 
-impl Default for DisplayConfiguration {
-    fn default() -> Self {
-        Self { pixels_per_meter: 10. }
-    }
-}
+
 
 #[derive(Resource)]
 pub struct SocialForcesModelConfiguration{
