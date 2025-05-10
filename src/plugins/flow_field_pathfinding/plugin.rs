@@ -29,9 +29,9 @@ impl Plugin for FlowFieldPathfindingPlugin {
 
         .add_systems(Startup, add_field_map::<BlockedStatus>)
 
-        .add_systems(First, handle_grid_state_inputs)
-        .add_systems(First, handle_overlay_inputs)
-        .add_systems(First, handle_selection_inputs)
+        .add_systems(PreUpdate, handle_grid_state_inputs)
+        .add_systems(PreUpdate, handle_overlay_inputs)
+        .add_systems(PreUpdate, handle_selection_inputs)
         
         .add_systems(Update, 
             (
@@ -64,7 +64,7 @@ fn add_configuration(simulation_area: Res<SimulationArea>, mut commands: Command
 fn register_multi_field<T>(app: &mut App) where T: Default + Clone + Send + Sync + 'static{
     app
     .add_systems(Startup, add_entity_multi_field::<T>)
-    .add_systems(First, add_field_for_objectives::<T>)
+    .add_systems(PreUpdate, add_field_for_objectives::<T>)
     .add_systems(Last, remove_field_for_objectives);
 }
 

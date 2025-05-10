@@ -23,9 +23,9 @@ impl Plugin for SocialForcesPlugin {
         );
 
         app
-        .add_systems(First, add_force_to_agents::<MotivationForce>)
-        .add_systems(First, add_force_to_agents::<ObstacleForce>)
-        .add_systems(First, add_force_to_agents::<RepulsiveForce>)
+        .add_systems(PreUpdate, add_force_to_agents::<MotivationForce>)
+        .add_systems(PreUpdate, add_force_to_agents::<ObstacleForce>)
+        .add_systems(PreUpdate, add_force_to_agents::<RepulsiveForce>)
         .add_systems(Update, obstacle_force.in_set(SocialForcesSystemSet::ComputeForces))
         .add_systems(Update, compute_motivation_force.in_set(SocialForcesSystemSet::ComputeForces).after(FlowFieldSystemSet::ComputeFields))
         //.add_systems(Update, compute_repulsive_forces.in_set(SocialForcesSystemSet::ComputeForces))

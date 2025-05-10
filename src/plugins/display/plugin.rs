@@ -13,8 +13,8 @@ impl Plugin for DisplayPlugin {
         app
         .insert_resource(DisplayConfiguration::default())
         .add_systems(Startup, setup)
-        .add_systems(First, add_transform_for_positioned_components)
-        .add_systems(First, add_mesh_for_shaped_components)
+        .add_systems(PreUpdate, add_transform_for_positioned_components)
+        .add_systems(PreUpdate, add_mesh_for_shaped_components)
         .add_systems(PostUpdate, position_to_pixel);
         
     }

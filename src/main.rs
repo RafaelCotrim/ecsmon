@@ -47,8 +47,8 @@ fn setup(
     //     Position::from(Vec2::new(15., 0.)),
     // ));
 
-    for x in 0..20 {
-        for y in 0..20 {
+    for x in 0..100 {
+        for y in 0..100 {
             commands.spawn((
                 Agent,
                 Shape::Circle(0.3),
