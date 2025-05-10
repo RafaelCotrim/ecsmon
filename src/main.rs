@@ -6,7 +6,7 @@ use std::ops::AddAssign;
 
 use bevy::{color::palettes::tailwind::*, prelude::*};
 use components::prelude::*;
-use plugins::{default::plugin::ECSMosDefaultPlugins, kinematics::plugin::KinematicsPlugin, simple_objective::plugin::SimpleObjective, simulation_area::plugin::SimulationAreaPlugin};
+use plugins::{default::plugin::ECSMosDefaultPlugins, kinematics::plugin::KinematicsPlugin, simple_objective::plugin::SimpleObjective, simulation_area::plugin::SimulationAreaPlugin, social_foces_model::plugin::SocialForcesPlugin};
 use resources::configuration::*;
 
 fn main() {
@@ -17,6 +17,7 @@ fn main() {
     .add_plugins((SimulationAreaPlugin{
         simulation_area: Rect::from_center_size(Vec2::ZERO, Vec2::new(120., 60.)) 
     },))
+    .add_plugins(SocialForcesPlugin::default())
     .add_plugins(SimpleObjective)
     .add_systems(Startup, setup)
 
@@ -30,7 +31,6 @@ fn setup(
 ){
 
     commands.insert_resource(SimulationConfiguration::default());
-    commands.insert_resource(SocialForcesModelConfiguration::default());
 
     let objective = commands.spawn((
         Objective,
@@ -45,7 +45,7 @@ fn setup(
         Shape::Circle(1. * 10.),
         Mesh2d(meshes.add(Circle { radius:1. * 10.})),
         MeshMaterial2d(materials.add(Color::from(GRAY_400))),
-        Position::from(Vec2::new(0., 0.)),
+        Position::from(Vec2::new(15., 0.)),
     ));
 
     commands.spawn((
