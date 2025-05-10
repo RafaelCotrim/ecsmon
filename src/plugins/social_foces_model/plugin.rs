@@ -1,6 +1,6 @@
 use bevy::{app::prelude::*, ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet}};
 
-use crate::plugins::kinematics::plugin::KinematicsSet;
+use crate::plugins::{flow_field_pathfinding::plugin::FlowFieldSystemSet, kinematics::plugin::KinematicsSet};
 
 use super::{components::*, configuration::*, system::*};
 
@@ -27,7 +27,10 @@ impl Plugin for SocialForcesPlugin {
         .add_systems(First, add_force_to_agents::<ObstacleForce>)
         .add_systems(First, add_force_to_agents::<RepulsiveForce>)
         .add_systems(Update, obstacle_force.in_set(SocialForcesSystemSet::ComputeForces))
-        .add_systems(Update, apply_social_foces.in_set(SocialForcesSystemSet::ApplyForces));
+        .add_systems(Update, compute_motivation_force.in_set(SocialForcesSystemSet::ComputeForces).after(FlowFieldSystemSet::ComputeFields))
+        //.add_systems(Update, compute_repulsive_forces.in_set(SocialForcesSystemSet::ComputeForces))
+        .add_systems(Update, apply_social_foces.in_set(SocialForcesSystemSet::ApplyForces))
+        .add_systems(Update, agent_max_speed.in_set(SocialForcesSystemSet::ApplyForces));
     }
 }
 

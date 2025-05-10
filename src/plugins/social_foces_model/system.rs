@@ -1,6 +1,6 @@
 use bevy::{math::vec2, prelude::*};
 
-use crate::components::prelude::*;
+use crate::{components::prelude::*, plugins::flow_field_pathfinding::resources::{EntityMultiField, Grid2D}};
 
 use super::{components::*, configuration::*};
 
@@ -69,47 +69,93 @@ pub fn apply_social_foces(
     }
 }
 
-// Helpers
+pub fn compute_motivation_force(
+    config: Res<SocialForcesModelConfiguration>,
+    vector_multi_field: ResMut<EntityMultiField<Vec2>>, 
+    mut agents: Query<(&mut MotivationForce, &Position, &Speed, &Destination), With<Agent>>
+){
+    
+    for (mut motivation_force, position, agent_speed, &destination) in &mut agents {
+        let pos = position.value();
+        let vector_field = vector_multi_field.get(&destination.0).expect("Grid map not found in grid multi map");
 
-fn signed_distance_and_normal_to_sahpe(shape: &Shape, shape_position: Vec2, point: Vec2) -> (Vec2, f32) {
-    match shape {
-        Shape::Circle(radius) => ( point - shape_position, (point - shape_position).length() - radius),
-        Shape::Polygon(polygon_points) => {
-        
-            let point = point - shape_position;
+        let cell = match vector_field.get_cell(&pos) {
+            Some(v) => v,
+            None => continue,
+        };
 
-            let num_points = polygon_points.len();
-            let mut min_dist: f32 = f32::INFINITY;
-            let mut segment = (Vec2::ZERO, Vec2::ZERO);
-            let mut t_of_min = 0.;
-
-            for i in 0..num_points{
-
-                let a = polygon_points[i];
-                let b = polygon_points[(i + 1) % num_points];
-
-                let t = (point - a).dot(b - a) / (b - a).dot( b - a);
-
-                let closes_point = a.lerp(b, t.clamp(0., 1.));
-                
-                let distance = (point - closes_point).length();
-
-                if distance < min_dist{
-                    min_dist = distance;
-                    segment = (a, b);
-                    t_of_min = t;
-                }
+        let base_vector = cell
+        .adjacent_inclusive()
+        .iter()
+        .map(|c| (c, vector_field.get(c)))
+        .filter_map(|(c, v)| 
+            if let Some(value) = v {
+            Some((c, value))
+            } else {
+                None
             }
+        ).map(|(c, v)| v/(vector_field.get_coord(*c) - pos).length_squared())
+        .fold(Vec2::ZERO, |acc, v| acc + v).normalize() * config.agent_desired_speed;
 
-            let ab = segment.1 - segment.0;
-            // Vec2::new(ab.y, -ab.x)
-            let normal = match t_of_min {
-                x if x < 0. => point - segment.0,
-                x if x > 1. => point - segment.1,
-                _ => Vec2::new(ab.y, -ab.x)
-            };
-
-            return (normal, min_dist);
+        if base_vector.is_nan(){
+            continue;
         }
+        
+        let final_force = base_vector - agent_speed.value();
+
+        motivation_force.0 = final_force;
+    }
+}
+
+pub fn compute_repulsive_forces(
+    config: Res<SocialForcesModelConfiguration>,
+    mut agents: Query<(&mut RepulsiveForce, &Position, &Shape), With<Agent>>
+) {
+    
+    for (mut force, _, _)in &mut agents{
+        force.0 = vec2(0., 0.)
+    }
+    
+    let mut combinations = agents.iter_combinations_mut();
+
+    let g = 0.;
+
+    while let Some([(mut force_1, position_1, shape_1), (mut force_2, position_2, shape_2)]) = combinations.fetch_next() {
+
+        let combined_radius = match (shape_1, shape_2) {
+            (Shape::Circle(r1), Shape::Circle(r2)) => r1 + r2,
+            (_, _) => todo!()
+        };
+
+        let effective_distance = (position_2.value() - position_1.value()).length() - combined_radius;
+
+
+        let n = (position_1.value() - position_2.value())
+        .normalize();
+
+        let t = Vec2::new(-n.y, n.x);
+
+        let repulsive_factor = config.a * (-effective_distance / config.b).exp();
+        let contact_factor = config.k * g * effective_distance;
+
+        let pushing_force = (repulsive_factor + contact_factor) * n;
+        let sliding_force = config.kappa * g * effective_distance * t;
+
+        let final_force = pushing_force + sliding_force;
+
+        force_1.0 += Vec2::new(final_force.x, final_force.y);
+        force_2.0 += -Vec2::new(final_force.x, final_force.y);
+    }
+}
+
+pub fn agent_max_speed(config: Res<SocialForcesModelConfiguration>, mut agents: Query<&mut Speed, With<Agent>>) {
+    for mut speed in &mut agents {
+        let mut new_speed = speed.value().clamp_length_max(config.agent_desired_speed);
+        
+        if new_speed.is_nan() {
+            new_speed = Vec2::ZERO;
+        }
+
+        speed.set_value(new_speed);
     }
 }

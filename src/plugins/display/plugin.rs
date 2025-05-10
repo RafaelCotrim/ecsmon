@@ -14,6 +14,7 @@ impl Plugin for DisplayPlugin {
         .insert_resource(DisplayConfiguration::default())
         .add_systems(Startup, setup)
         .add_systems(First, add_transform_for_positioned_components)
+        .add_systems(First, add_mesh_for_shaped_components)
         .add_systems(PostUpdate, position_to_pixel);
         
     }
@@ -28,12 +29,12 @@ fn setup(
 ){
     commands.spawn((Camera2d::default(), PanCam::default()));
 
-    commands.spawn((
-        Mesh2d(meshes.add(Rectangle::from_size(simulation_area.0.size() * display_configuration.pixels_per_meter))),
-        MeshMaterial2d(materials.add(Color::from(WHITE))),
-        Transform{
-            translation: Vec3::ZERO.with_z(-0.1),
-            ..Default::default()
-        }
-    ));
+    // commands.spawn((
+    //     Mesh2d(meshes.add(Rectangle::from_size(simulation_area.0.size() * display_configuration.pixels_per_meter))),
+    //     MeshMaterial2d(materials.add(Color::from(WHITE))),
+    //     Transform{
+    //         translation: Vec3::ZERO.with_z(-0.1),
+    //         ..Default::default()
+    //     }
+    // ));
 }

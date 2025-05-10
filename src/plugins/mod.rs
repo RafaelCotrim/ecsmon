@@ -1,5 +1,6 @@
 pub mod default;
 pub mod display;
+pub mod flow_field_pathfinding;
 pub mod kinematics;
 pub mod simple_objective;
 pub mod simulation_area;
