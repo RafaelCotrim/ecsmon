@@ -18,7 +18,7 @@ impl Speed {
     }
 }
 
-#[derive(Component, Clone, Copy, Default, From, Into, Add, Mul, AddAssign, MulAssign, Constructor)]
+#[derive(Component, Clone, Copy, Default, From, Into, Add, Mul, AddAssign, MulAssign, Constructor, PartialEq)]
 pub struct Position(Vec2);
 
 impl Position {
