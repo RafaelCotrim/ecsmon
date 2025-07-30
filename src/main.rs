@@ -47,13 +47,13 @@ fn setup(
     //     Position::from(Vec2::new(15., 0.)),
     // ));
 
-    for x in 0..100 {
-        for y in 0..100 {
+    for x in 0..1 {
+        for y in 0..1 {
             commands.spawn((
                 Agent,
                 Shape::Circle(0.3),
                 Destination( objective ),
-                Speed::new(Vec2::new(0.8, 0.)),
+                Speed::new(Vec2::new(0.0, 0.)),
                 MeshMaterial2d(materials.add(Color::from(BLUE_500))),
                 Position::from(Vec2::new(-x as f32, y as f32)),
             ));

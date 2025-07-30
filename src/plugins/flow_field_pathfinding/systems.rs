@@ -298,6 +298,7 @@ pub fn compute_density_map(
     agents: Query<(&Position, &Shape, &Destination), (With<Agent>, Changed<Position>)>){
 
     density_mutli_field.reset(0.0.into());
+
     let influence_radius = Shape::Circle(10.* 0.3);
 
     for (position, shape, destination) in agents.into_iter() {
@@ -307,8 +308,8 @@ pub fn compute_density_map(
             None => continue,
         };
 
-        let center = position.value();
-        let rect = influence_radius.get_rectangle_with_center(center);
+        let agent_center = position.value();
+        let rect = influence_radius.get_rectangle_with_center(agent_center);
 
         let region = density_map.get_cells_within(rect);
         
@@ -324,7 +325,7 @@ pub fn compute_density_map(
 
                 let cell_center = density_map.get_coord(cell);
 
-                if !point_in_shape(&influence_radius, center, cell_center) {
+                if !point_in_shape(&influence_radius, agent_center, cell_center) {
                     continue;
                 }
 
@@ -332,8 +333,8 @@ pub fn compute_density_map(
 
                     let value = *value;
 
-                    let distance: f32 = (cell_center - center - 0.3).length();
-                    let delta_density = density_kernel(distance, 50.);
+                    let distance: f32 = (cell_center - agent_center - 0.3).length();
+                    let delta_density = density_kernel(distance, 10. * 0.3);
                     let new_density = value + delta_density.into();
                     density_map.set(cell, new_density).unwrap();
                 }
