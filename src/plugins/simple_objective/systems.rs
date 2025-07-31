@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::components::prelude::*;
 
-pub fn check_if_agent_araived_at_destination(
+pub fn check_if_agent_arrived_at_destination(
     mut commands: Commands,
     agents: Query<(Entity, &Position, &Destination)>,
     destinations: Query<(&Position, &Shape), With<Objective>>,
@@ -17,7 +17,7 @@ pub fn check_if_agent_araived_at_destination(
 
         match destination_shape {
             Shape::Circle(radius) => {
-                let distance = (destination_pos.value().length() - agent_position).length() - radius;
+                let distance = (destination_pos.value() - agent_position).length() - radius;
                 if distance <= 0. {
                     commands.entity(agent).despawn();
                 }
@@ -37,7 +37,7 @@ fn test_contact() {
 
     let mut app = App::new();
 
-    app.add_systems(Update, check_if_agent_araived_at_destination);
+    app.add_systems(Update, check_if_agent_arrived_at_destination);
 
     let world = app.world_mut();
 
@@ -93,7 +93,7 @@ fn test_diferent_destination() {
 
     let mut app = App::new();
 
-    app.add_systems(Update, check_if_agent_araived_at_destination);
+    app.add_systems(Update, check_if_agent_arrived_at_destination);
 
     let world = app.world_mut();
 

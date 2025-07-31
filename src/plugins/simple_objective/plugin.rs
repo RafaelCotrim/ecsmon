@@ -9,6 +9,6 @@ pub struct SimpleObjective;
 impl Plugin for SimpleObjective {
     fn build(&self, app: &mut App) {
 
-        app.add_systems(Update, check_if_agent_araived_at_destination.after(KinematicsSet::ApplyVelocity));
+        app.add_systems(Update, check_if_agent_arrived_at_destination.after(KinematicsSet::ApplyVelocity));
     }
 }
