@@ -1,4 +1,4 @@
-use bevy::{math::VectorSpace, prelude::*};
+use bevy::prelude::*;
 
 
 use crate::components::{physics::{Position, Shape}, prelude::Agent};
