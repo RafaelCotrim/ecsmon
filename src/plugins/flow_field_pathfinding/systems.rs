@@ -547,7 +547,7 @@ pub fn draw_vectors(config: Res<DisplayConfiguration>, mut gizmos: Gizmos, field
             if let Some(value) = map.get(&IVec2::new(x as i32,  y as i32)){
                 
                 let cell_top_left = (map.get_area().center() + (Vec2::new(x as f32,  y as f32) - global_offset) * map.get_cell_dimentions()) * config.pixels_per_meter;
-                let cell_center = cell_top_left + Vec2::new(0.5, 0.5) * map.get_cell_dimentions() * config.pixels_per_meter / 2.;
+                let cell_center = cell_top_left + Vec2::new(0.5, 0.5) * map.get_cell_dimentions() * config.pixels_per_meter;
                 gizmos.arrow_2d(cell_center, cell_center + value * config.pixels_per_meter, PURPLE_500);
 
             }
