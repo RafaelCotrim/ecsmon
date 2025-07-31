@@ -14,12 +14,13 @@ fn main() {
     app
     .add_plugins(ECSMosDefaultPlugins)
     .add_plugins(KinematicsPlugin)
+    .add_plugins(SimpleObjective)
     .add_plugins((SimulationAreaPlugin{
         simulation_area: Rect::from_center_size(Vec2::ZERO, Vec2::new(120., 60.)) 
     },))
     .add_plugins(SocialForcesPlugin::default())
     .add_plugins((FlowFieldPathfindingPlugin{ cell_size: 2. * 0.3},))
-    .add_plugins(SimpleObjective)
+    
     .add_systems(Startup, setup)
 
     .run();
