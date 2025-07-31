@@ -47,7 +47,7 @@ impl Plugin for FlowFieldPathfindingPlugin {
         .add_systems(PostUpdate, draw_targets.run_if(in_state(PathFindingOverlayState::ShowTargets)))
         .add_systems(PostUpdate, draw_proximity.run_if(in_state(PathFindingOverlayState::ShowProimity)))
         .add_systems(PostUpdate, draw_vectors.run_if(in_state(PathFindingOverlayState::ShowVectorField)))
-        .add_systems(PostUpdate, draw_density)
+        .add_systems(PostUpdate, draw_density.run_if(in_state(PathFindingOverlayState::ShowDensityField)))
         
         .add_systems(Last, remove_field_for_objectives);
     }

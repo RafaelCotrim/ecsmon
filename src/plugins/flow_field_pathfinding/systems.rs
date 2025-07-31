@@ -392,6 +392,10 @@ pub fn handle_overlay_inputs(state: Res<State<PathFindingOverlayState>>, mut nex
         next = Some(PathFindingOverlayState::ShowVectorField);
     }
 
+    if keys.just_pressed(KeyCode::KeyF) {
+        next = Some(PathFindingOverlayState::ShowDensityField);
+    }
+
     if let Some(new_value) = next{
         if new_value == *state.get(){
             next_state.set(PathFindingOverlayState::ShowNone);

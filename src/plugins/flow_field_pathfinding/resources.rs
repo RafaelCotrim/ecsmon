@@ -19,7 +19,8 @@ pub enum PathFindingOverlayState{
     ShowTargets,
     ShowObstacles,
     ShowProimity,
-    ShowVectorField
+    ShowVectorField,
+    ShowDensityField,
 }
 
 #[derive(Resource)]
