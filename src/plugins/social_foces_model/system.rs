@@ -17,7 +17,7 @@ pub fn add_force_to_agents<T> (
 
 // Update
 
-pub fn obstacle_force(
+pub fn compute_obstacle_force(
     config: Res<SocialForcesModelConfiguration>,
     mut agents: Query<(&mut ObstacleForce, &Position, &Shape), With<Agent>>,
     obstacles: Query<(&Position, &Shape), With<Obstacle>>,
@@ -69,7 +69,7 @@ pub fn apply_social_foces(
     }
 }
 
-pub fn compute_motivation_force(
+pub fn compute_motivation_force_via_floor_field(
     config: Res<SocialForcesModelConfiguration>,
     vector_multi_field: ResMut<EntityMultiField<Vec2>>, 
     mut agents: Query<(&mut MotivationForce, &Position, &Speed, &Destination), With<Agent>>
@@ -104,6 +104,26 @@ pub fn compute_motivation_force(
         let final_force = base_vector - agent_speed.value();
 
         motivation_force.0 = final_force;
+    }
+}
+
+pub fn compute_motivation_force_via_absolute_direction(
+    config: Res<SocialForcesModelConfiguration>,
+    mut agents: Query<(&mut MotivationForce, &Position, &Speed, &Destination), With<Agent>>,
+    objectives: Query<(&Position), With<Objective>>
+){
+    for (mut motivation_force, agent_position, agent_speed, destination) in agents.iter_mut() {
+        if let Ok(objective_position) = objectives.get(destination.0){
+            let base_vector = (objective_position.value() - agent_position.value()).normalize() * config.agent_desired_speed;
+
+            if base_vector.is_nan() || base_vector.length() < f32::EPSILON{
+                continue;
+            }
+
+            let final_force = base_vector - agent_speed.value();
+
+            motivation_force.0 = final_force;
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 use std::ops::AddAssign;
 
 use bevy::prelude::*;
-use derive_more::{Add, AddAssign, Constructor, From, Into, Mul, MulAssign};
+use derive_more::{Add, AddAssign, Constructor, From, Into, Mul, MulAssign, Sub};
 
 #[derive(Component, Clone, Copy, Default, From, Into, Add, Mul, AddAssign, MulAssign, Constructor)]
 pub struct Speed(Vec2);
@@ -18,7 +18,7 @@ impl Speed {
     }
 }
 
-#[derive(Component, Clone, Copy, Default, From, Into, Add, Mul, AddAssign, MulAssign, Constructor, PartialEq)]
+#[derive(Component, Clone, Copy, Default, From, Into, Add, Mul, Sub, AddAssign, MulAssign, Constructor, PartialEq)]
 pub struct Position(Vec2);
 
 impl Position {
