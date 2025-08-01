@@ -2,10 +2,13 @@ use bevy::prelude::*;
 
 use crate::{plugins::simulation_area::resources::SimulationArea, Obstacle};
 
-use super::{models::{AgentDensity, BlockedStatus, TargetProximity, TargetStatus}, resources::*, systems::*};
+use super::{configuration::{FlowFieldConstants, GridCellSize}, models::{AgentDensity, BlockedStatus, TargetProximity, TargetStatus}, resources::*, systems::*};
 
+#[derive(Default)]
 pub struct FlowFieldPathfindingPlugin{
-    pub cell_size: f32
+    pub cell_size: f32,
+
+    pub constants: FlowFieldConstants,
 }
 
 impl Plugin for FlowFieldPathfindingPlugin {
@@ -16,7 +19,9 @@ impl Plugin for FlowFieldPathfindingPlugin {
         app
         .insert_state(PathFindingOverlayState::ShowNone)
         .insert_state(ShowGridState::HideGrid)
-        .insert_resource(SelectedItem(0));
+
+        .insert_resource(SelectedItem(0))
+        .insert_resource(self.constants);
 
         register_multi_field::<TargetStatus>(app);
         register_multi_field::<TargetProximity>(app);

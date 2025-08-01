@@ -1,11 +1,7 @@
 use bevy::prelude::*;
 use std::{collections::HashMap, fmt::{self, Debug}, hash::Hash};
 
-#[derive(Resource)]
-pub struct GridCellSize{
-    pub rows: usize,
-    pub columns: usize,
-}
+
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ShowGridState{

@@ -4,7 +4,7 @@ use bevy::{color::palettes::tailwind::*, prelude::*};
 
 use crate::{components::prelude::*, plugins::{display::resources::DisplayConfiguration, simulation_area::resources::SimulationArea}};
 
-use super::{components::Ordering, models::*, resources::*};
+use super::{components::Ordering, configuration::{FlowFieldConstants, GridCellSize}, models::*, resources::*};
 
 // #############
 // Setup Systems
@@ -294,22 +294,30 @@ pub fn compute_vector_map(mut vector_multi_field: ResMut<EntityMultiField<Vec2>>
 }
 
 pub fn compute_density_map(
+    constants: Res<FlowFieldConstants>,
     mut density_mutli_field: ResMut<EntityMultiField<AgentDensity>>, 
     agents: Query<(&Position, &Shape, &Destination), (With<Agent>, Changed<Position>)>){
 
     density_mutli_field.reset(0.0.into());
 
-    let influence_radius = Shape::Circle(10.* 0.3);
 
     for (position, shape, destination) in agents.into_iter() {
+
+        let agent_radius = match shape {
+            Shape::Circle(r) => r,
+            Shape::Polygon(_) => todo!(),
+        };
+
+        let influence_radius = agent_radius * constants.influence_radius_multiplier;
+        let influence_area = Shape::Circle(influence_radius);
 
         let density_map = match density_mutli_field.get_mut(&destination.0) {
             Some(value) => value,
             None => continue,
         };
 
-        let agent_center = position.value();
-        let rect = influence_radius.get_rectangle_with_center(agent_center);
+        let center = position.value();
+        let rect = influence_area.get_rectangle_with_center(center);
 
         let region = density_map.get_cells_within(rect);
         
@@ -325,7 +333,7 @@ pub fn compute_density_map(
 
                 let cell_center = density_map.get_coord(cell);
 
-                if !point_in_shape(&influence_radius, agent_center, cell_center) {
+                if !point_in_shape(&influence_area, center, cell_center) {
                     continue;
                 }
 
@@ -333,8 +341,8 @@ pub fn compute_density_map(
 
                     let value = *value;
 
-                    let distance: f32 = (cell_center - agent_center - 0.3).length();
-                    let delta_density = density_kernel(distance, 10. * 0.3);
+                    let distance: f32 = (cell_center - center - agent_radius).length();
+                    let delta_density = density_kernel(distance, influence_radius + constants.kernel_radius_overflow);
                     let new_density = value + delta_density.into();
                     density_map.set(cell, new_density).unwrap();
                 }
@@ -505,6 +513,17 @@ pub fn draw_proximity(config: Res<DisplayConfiguration>, mut gizmos: Gizmos, fie
 
     let global_offset = Vec2::new(map.get_columns() as f32, map.get_rows() as f32) / 2.;
     
+    let mut max_value = 0.;
+    for x in 0..map.get_columns() {
+        for y in 0..map.get_rows() {
+            if let Some(TargetProximity::Computed(value)) = map.get(&IVec2::new(x as i32, y as i32)) {
+                if *value > max_value {
+                    max_value = *value;
+                }
+            }
+        }
+    }
+
     for x in 0..map.get_columns() {
         for y in 0..map.get_rows() {
             
@@ -514,7 +533,7 @@ pub fn draw_proximity(config: Res<DisplayConfiguration>, mut gizmos: Gizmos, fie
 
             let color = match map.get(&IVec2::new(x as i32, y as i32)) {
                 Some(TargetProximity::NotComputed) => Color::from(PURPLE_500),
-                Some(TargetProximity::Computed(value)) => Color::from(GREEN_500).with_alpha(1./(value + 1.)),
+                Some(TargetProximity::Computed(value)) => lerp_color_gradient(*value / (max_value.max(1.))),
                 _ => continue,
             };
         
@@ -526,6 +545,27 @@ pub fn draw_proximity(config: Res<DisplayConfiguration>, mut gizmos: Gizmos, fie
         }
     }
 
+}
+
+fn lerp_color_gradient(t: f32) -> Color {
+    let t = t.clamp(0.0, 1.0);
+
+    if t <= 0.2 {
+        let t2 = t / 0.2;
+        Color::srgb(t2, 1.0, 0.0) // Green → Yellow
+    } else if t <= 0.4 {
+        let t2 = (t - 0.2) / 0.2;
+        Color::srgb(1.0, 1.0 - 0.5 * t2, 0.0) // Yellow → Orange
+    } else if t <= 0.6 {
+        let t2 = (t - 0.4) / 0.2;
+        Color::srgb(1.0, 0.5 - 0.5 * t2, 0.0) // Orange → Red
+    } else if t <= 0.8 {
+        let t2 = (t - 0.6) / 0.2;
+        Color::srgb(1.0, 0.0, t2) // Red → Magenta
+    } else {
+        let t2 = (t - 0.8) / 0.2;
+        Color::srgb(1.0 - 0.5 * t2, 0.0, 1.0) // Magenta → Purple/Blue
+    }
 }
 
 pub fn draw_vectors(config: Res<DisplayConfiguration>, mut gizmos: Gizmos, fields: Res<EntityMultiField<Vec2>>, selected: Res<SelectedItem>, objectives: Query<(Entity, &Ordering)>){
