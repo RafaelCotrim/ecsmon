@@ -1,3 +1,4 @@
+pub mod auto_end_simulation;
 pub mod default;
 pub mod display;
 pub mod flow_field_pathfinding;

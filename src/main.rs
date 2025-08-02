@@ -6,6 +6,7 @@ mod utils;
 use bevy::{color::palettes::tailwind::*, prelude::*};
 use components::prelude::*;
 use plugins::{
+    auto_end_simulation::plugin::AutoEndSimulationPlugin,
     default::plugin::ECSMosDefaultPlugins,
     flow_field_pathfinding::{components::Ordering, plugin::FlowFieldPathfindingPlugin},
     kinematics::plugin::KinematicsPlugin,
@@ -19,7 +20,8 @@ use plugins::{
             SocialForcesModelConfiguration,
         },
         plugin::SocialForcesPlugin,
-    }, start_time::plugin::StartTimePluging,
+    },
+    start_time::plugin::StartTimePluging,
 };
 use resources::configuration::*;
 
@@ -49,6 +51,7 @@ fn main() {
         },))
         .add_plugins(TrackingPlugin::default())
         .add_plugins(StartTimePluging)
+        .add_plugins(AutoEndSimulationPlugin)
         .add_systems(Startup, setup)
         .run();
 }
