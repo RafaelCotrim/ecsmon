@@ -5,11 +5,12 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.95"
-bevy = { version = "0.15.2", features = ["dynamic_linking"] }
-bevy-fps-counter = "0.6.0"
-bevy-inspector-egui = "=0.30.0"
-bevy_pancam = "0.17.0"
-bevy_prototype_lyon = "0.13.0"
+bevy = { version = "0.16.1", features = ["dynamic_linking"] }
+bevy-fps-counter = "0.7.0"
+bevy-inspector-egui = "0.32.0"
+bevy_pancam = "0.18.0"
+bevy_prototype_lyon = { git = "https://github.com/rparrett/bevy_prototype_lyon", branch = "fix-dynamic-examples" }
+chrono = "0.4.41"
 derive_more = { version = "2.0.1", features = ["full"] }
 
 [profile.dev]

@@ -1,4 +1,4 @@
-use bevy::{app::{Plugin, Update}, ecs::schedule::{IntoSystemConfigs, SystemSet}};
+use bevy::{app::{Plugin, Update}, ecs::schedule::{IntoScheduleConfigs, SystemSet}};
 
 use super::systems::*;
 pub struct KinematicsPlugin;

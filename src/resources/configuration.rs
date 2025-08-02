@@ -1,4 +1,4 @@
-use bevy::ecs::system::Resource;
+use bevy::ecs::resource::Resource;
 
 #[derive(Resource)]
 pub struct SimulationConfiguration{

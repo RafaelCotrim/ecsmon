@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::{app::{PluginGroup, PluginGroupBuilder}, window::{Window, WindowPlugin}, DefaultPlugins};
 use bevy_fps_counter::FpsCounterPlugin;
 use bevy_pancam::PanCamPlugin;
-use bevy_prototype_lyon::plugin::ShapePlugin;
+use bevy_prototype_lyon::prelude::*;
 
 use crate::plugins::display::plugin::DisplayPlugin;
 

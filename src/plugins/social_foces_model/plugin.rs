@@ -1,6 +1,6 @@
 use bevy::{
     app::prelude::*,
-    ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet},
+    ecs::schedule::{IntoScheduleConfigs, SystemSet},
 };
 
 use crate::plugins::{

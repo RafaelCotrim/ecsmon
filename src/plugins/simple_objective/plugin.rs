@@ -1,4 +1,4 @@
-use bevy::{app::{App, Plugin, Update}, ecs::schedule::IntoSystemConfigs};
+use bevy::{app::{App, Plugin, Update}, ecs::schedule::IntoScheduleConfigs};
 
 use crate::plugins::kinematics::plugin::KinematicsSet;
 

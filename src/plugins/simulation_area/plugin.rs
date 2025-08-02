@@ -1,4 +1,4 @@
-use bevy::{app::prelude::*, ecs::schedule::IntoSystemConfigs, math::Rect};
+use bevy::{app::prelude::*, ecs::schedule::IntoScheduleConfigs, math::Rect};
 
 use crate::plugins::kinematics::plugin::KinematicsSet;
 
