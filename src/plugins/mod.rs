@@ -5,3 +5,4 @@ pub mod kinematics;
 pub mod simple_objective;
 pub mod simulation_area;
 pub mod social_foces_model;
+pub mod start_time;
