@@ -2,6 +2,7 @@ pub mod default;
 pub mod display;
 pub mod flow_field_pathfinding;
 pub mod kinematics;
+pub mod movement_tracking;
 pub mod simple_objective;
 pub mod simulation_area;
 pub mod social_foces_model;
