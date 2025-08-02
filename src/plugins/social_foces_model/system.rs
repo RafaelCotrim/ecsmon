@@ -110,7 +110,7 @@ pub fn compute_motivation_force_via_floor_field(
 pub fn compute_motivation_force_via_absolute_direction(
     config: Res<SocialForcesModelConfiguration>,
     mut agents: Query<(&mut MotivationForce, &Position, &Speed, &Destination), With<Agent>>,
-    objectives: Query<(&Position), With<Objective>>
+    objectives: Query<&Position, With<Objective>>
 ){
     for (mut motivation_force, agent_position, agent_speed, destination) in agents.iter_mut() {
         if let Ok(objective_position) = objectives.get(destination.0){
