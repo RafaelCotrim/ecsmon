@@ -7,4 +7,5 @@ pub mod movement_tracking;
 pub mod simple_objective;
 pub mod simulation_area;
 pub mod social_foces_model;
+pub mod spawner;
 pub mod start_time;
