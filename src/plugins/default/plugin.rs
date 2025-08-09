@@ -1,5 +1,6 @@
 use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::prelude::*;
+use bevy::window::PresentMode;
 use bevy::{app::{PluginGroup, PluginGroupBuilder}, window::{Window, WindowPlugin}, DefaultPlugins};
 use bevy_fps_counter::FpsCounterPlugin;
 use bevy_pancam::PanCamPlugin;
@@ -17,7 +18,7 @@ impl PluginGroup for ECSMosDefaultPlugins {
         .add_group(DefaultPlugins.set(
             WindowPlugin {
                 primary_window: Some(Window {
-                    //present_mode: PresentMode::Immediate,
+                    present_mode: PresentMode::Immediate,
                     ..default()
                 }),
                 ..default()

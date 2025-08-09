@@ -3,7 +3,8 @@ mod plugins;
 mod resources;
 mod utils;
 
-use bevy::{color::palettes::tailwind::*, prelude::*};
+use bevy::{color::palettes::{css::{BLACK, RED}, tailwind::*}, math::VectorSpace, prelude::*};
+use bevy_prototype_lyon::{draw::Fill, entity::ShapeBundle, path::ShapePath, prelude::{tess::path::traits::PathBuilder, ShapeBuilder, ShapeBuilderBase}};
 use components::prelude::*;
 use plugins::{
     auto_end_simulation::plugin::AutoEndSimulationPlugin,
@@ -24,6 +25,11 @@ use plugins::{
     start_time::plugin::StartTimePluging,
 };
 use resources::configuration::*;
+
+use crate::plugins::spawner::{
+    components::{Spawner, SpawnerArea, SpawnerDestination, SpawnerSchedule},
+    plugin::SpawnerPlugin,
+};
 
 fn main() {
     let mut app = App::new();
@@ -51,7 +57,8 @@ fn main() {
         },))
         .add_plugins(TrackingPlugin::default())
         .add_plugins(StartTimePluging)
-        .add_plugins(AutoEndSimulationPlugin)
+        // .add_plugins(AutoEndSimulationPlugin)
+        .add_plugins(SpawnerPlugin)
         .add_systems(Startup, setup)
         .run();
 }
@@ -65,7 +72,7 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
             Ordering(0),
             Shape::Circle(2.),
             MeshMaterial2d(materials.add(Color::from(RED_500))),
-            Position::from(Vec2::new(30., 0.0)),
+            Position::from(Vec2::new(50., 0.0)),
         ))
         .id();
 
@@ -88,4 +95,39 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
             ));
         }
     }
+
+    // commands.spawn((
+    //     Spawner,
+    //     Position::from(Vec2::new(-50., 0.)),
+    //     SpawnerArea(Vec2::new(5., 20.)),
+    //     SpawnerSchedule{
+    //         start_time: 10.,
+    //         end_time: 2000000.,
+    //         interval: 2.,
+    //         last_spawn: 0.,
+    //     },
+    //     SpawnerDestination(objective)
+    // ));
+
+    let points = vec![
+        Vec2::new(100., 148.),
+        Vec2::new(302.286, 300.),
+        Vec2::new(700., 300.),
+        Vec2::new(900., 148.),
+        Vec2::new(1000., 0.),
+        Vec2::new(0., 0.),
+        Vec2::new(0., 148.),
+        Vec2::new(100., 148.)
+    ];
+
+    let mut points: Vec<Vec2> = points.iter().map(|p| p - Vec2::new(500., 0.)).collect();
+    points.reverse();
+
+    let points = points.iter().map(|p| p /10.).collect();
+    commands.spawn((
+        Obstacle,
+        Shape::Polygon(points),
+        Position::from(Vec2::new(0., 0.))
+    ));
+
 }

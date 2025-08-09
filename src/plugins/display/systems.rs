@@ -1,4 +1,5 @@
-use bevy::prelude::*;
+use bevy::{color::palettes::tailwind::GRAY_500, prelude::*};
+use bevy_prototype_lyon::{path::ShapePath, prelude::{ShapeBuilder, ShapeBuilderBase}};
 
 use crate::components::prelude::*;
 
@@ -23,16 +24,29 @@ pub fn add_mesh_for_shaped_components(
     config: Res<DisplayConfiguration>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut commands: Commands, 
-    query: Query<(Entity, &Shape), Without<Mesh2d>>
+    query: Query<(Entity, &Shape), (Without<Mesh2d>, Without<bevy_prototype_lyon::entity::Shape>)>
 ){
     for (entity, shape) in query.iter() {
 
-        let mesh = match shape {
-            Shape::Circle(radius) => meshes.add(Circle { radius:radius * config.pixels_per_meter}),
-            Shape::Polygon(_) => todo!(),
-        };
+        if let Shape::Circle(radius) = shape {
+            let mesh = meshes.add(Circle { radius:radius * config.pixels_per_meter});
+            commands.entity(entity).insert(Mesh2d(mesh));
+        }
+        
+        else if let Shape::Polygon(points) = shape {
+            let mut up_path = ShapePath::new();
 
-        commands.entity(entity).insert(Mesh2d(mesh));
+            for point in points.iter()  {
+                up_path = up_path.line_to(*point * config.pixels_per_meter);
+            }
+
+            let path = up_path.close();
+
+            let shape = ShapeBuilder::with(&path).fill(GRAY_500).build();
+
+            commands.entity(entity).insert(shape);
+        }
+        
     }
 }
 
