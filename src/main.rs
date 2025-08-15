@@ -1,10 +1,23 @@
 mod components;
 mod plugins;
 mod resources;
+pub mod scenarios;
 mod utils;
 
-use bevy::{color::palettes::{css::{BLACK, RED}, tailwind::*}, math::VectorSpace, prelude::*};
-use bevy_prototype_lyon::{draw::Fill, entity::ShapeBundle, path::ShapePath, prelude::{tess::path::traits::PathBuilder, ShapeBuilder, ShapeBuilderBase}};
+use bevy::{
+    color::palettes::{
+        css::{BLACK, RED},
+        tailwind::*,
+    },
+    math::VectorSpace,
+    prelude::*,
+};
+use bevy_prototype_lyon::{
+    draw::Fill,
+    entity::ShapeBundle,
+    path::ShapePath,
+    prelude::{tess::path::traits::PathBuilder, ShapeBuilder, ShapeBuilderBase},
+};
 use components::prelude::*;
 use plugins::{
     auto_end_simulation::plugin::AutoEndSimulationPlugin,
@@ -33,11 +46,47 @@ use crate::plugins::spawner::{
 
 fn main() {
     let mut app = App::new();
+    // app.add_plugins(ECSMosDefaultPlugins)
+    //     .add_plugins(KinematicsPlugin)
+    //     .add_plugins(SimpleObjective)
+    //     .add_plugins((SimulationAreaPlugin {
+    //         simulation_area: Rect::from_center_size(Vec2::ZERO, Vec2::new(120., 60.)),
+    //     },))
+    //     .add_plugins(SocialForcesPlugin {
+    //         configuration: SocialForcesModelConfiguration {
+    //             forces: ForceConfiguration {
+    //                 motivation_force: MotivationForceComputationStrategy::FlowFieldPathFinding,
+    //                 obstacle_force: ObstacleForceComputationStrategy::Direct,
+    //                 repulsion_force: RepulsionForceComputationStrategy::Direct,
+    //                 ..Default::default()
+    //             },
+    //             ..Default::default()
+    //         },
+    //         ..Default::default()
+    //     })
+    //     .add_plugins((FlowFieldPathfindingPlugin {
+    //         cell_size: 2. * 0.3,
+    //         ..Default::default()
+    //     },))
+    //     .add_plugins(TrackingPlugin::default())
+    //     .add_plugins(StartTimePluging)
+    //     // .add_plugins(AutoEndSimulationPlugin)
+    //     .add_plugins(SpawnerPlugin)
+    //     .add_systems(Startup, setup)
+    //     .run();
+
+    // narrow_opening_app(&mut app);
+    corridor_app(&mut app);
+    app.run();
+
+}
+
+fn narrow_opening_app(app: &mut App){
     app.add_plugins(ECSMosDefaultPlugins)
         .add_plugins(KinematicsPlugin)
         .add_plugins(SimpleObjective)
         .add_plugins((SimulationAreaPlugin {
-            simulation_area: Rect::from_center_size(Vec2::ZERO, Vec2::new(120., 60.)),
+            simulation_area: Rect::from_center_size(Vec2::ZERO, Vec2::new(21., 21.)),
         },))
         .add_plugins(SocialForcesPlugin {
             configuration: SocialForcesModelConfiguration {
@@ -52,15 +101,175 @@ fn main() {
             ..Default::default()
         })
         .add_plugins((FlowFieldPathfindingPlugin {
-            cell_size: 2. * 0.3,
+            cell_size: 1. * 0.3,
             ..Default::default()
         },))
         .add_plugins(TrackingPlugin::default())
         .add_plugins(StartTimePluging)
         // .add_plugins(AutoEndSimulationPlugin)
         .add_plugins(SpawnerPlugin)
-        .add_systems(Startup, setup)
-        .run();
+        .add_systems(Startup, narrow_opening_setup);
+}
+
+fn narrow_opening_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+    commands.insert_resource(SimulationConfiguration::default());
+
+    let objective = commands
+        .spawn((
+            Objective,
+            Ordering(0),
+            Shape::Circle(2.),
+            MeshMaterial2d(materials.add(Color::from(GREEN_500))),
+            Position::from(Vec2::new(21. / 2., 0.0)),
+        ))
+        .id();
+
+    commands.spawn((
+        Spawner,
+        Position::from(Vec2::new((-21. / 2.) + 1., 0.)),
+        SpawnerArea(Vec2::new(1., 21./2.)),
+        SpawnerSchedule {
+            start_time: 10.,
+            end_time: 2000000.,
+            interval: 0.8,
+            last_spawn: 0.,
+        },
+        SpawnerDestination(objective),
+    ));
+
+    let points = vec![
+        Vec2::new(0., 0.),
+        Vec2::new(2., 0.),
+        Vec2::new(2., 9.),
+        Vec2::new(0., 9.),
+        Vec2::new(0., 0.),
+    ];
+
+    commands.spawn((
+        Obstacle,
+        Shape::Polygon(points.clone()),
+        Position::from(Vec2::new(0., 1.5))
+    ));
+
+    commands.spawn((
+        Obstacle,
+        Shape::Polygon(points),
+        Position::from(Vec2::new(0., -10.5))
+    ));
+}
+
+fn corridor_app(app: &mut App){
+    app.add_plugins(ECSMosDefaultPlugins)
+        .add_plugins(KinematicsPlugin)
+        .add_plugins(SimpleObjective)
+        .add_plugins((SimulationAreaPlugin {
+            simulation_area: Rect::from_center_size(Vec2::ZERO, Vec2::new(42., 21.)),
+        },))
+        .add_plugins(SocialForcesPlugin {
+            configuration: SocialForcesModelConfiguration {
+                forces: ForceConfiguration {
+                    motivation_force: MotivationForceComputationStrategy::FlowFieldPathFinding,
+                    obstacle_force: ObstacleForceComputationStrategy::Direct,
+                    repulsion_force: RepulsionForceComputationStrategy::Direct,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .add_plugins((FlowFieldPathfindingPlugin {
+            cell_size: 1. * 0.3,
+            ..Default::default()
+        },))
+        .add_plugins(TrackingPlugin::default())
+        .add_plugins(StartTimePluging)
+        // .add_plugins(AutoEndSimulationPlugin)
+        .add_plugins(SpawnerPlugin)
+        .add_systems(Startup, corridor_setup);
+}
+
+fn corridor_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+    commands.insert_resource(SimulationConfiguration::default());
+
+    let paralelogram_height = 7.;
+    
+    let objective_right = commands
+        .spawn((
+            Objective,
+            Ordering(0),
+            Shape::Circle(2.),
+            MeshMaterial2d(materials.add(Color::from(GREEN_500))),
+            Position::from(Vec2::new(42. / 2., 0.0)),
+        ))
+        .id();
+
+    let objective_left = commands
+        .spawn((
+            Objective,
+            Ordering(1),
+            Shape::Circle(2.),
+            MeshMaterial2d(materials.add(Color::from(GREEN_500))),
+            Position::from(Vec2::new(-42. / 2., 0.0)),
+        ))
+        .id();
+
+    commands.spawn((
+        Spawner,
+        Position::from(Vec2::new((-42. / 2.) + 1., 0.)),
+        SpawnerArea(Vec2::new(1., 21./2.)),
+        SpawnerSchedule {
+            start_time: 10.,
+            end_time: 2000000.,
+            interval: 2.,
+            last_spawn: 0.,
+        },
+        SpawnerDestination(objective_right),
+    ));
+
+    commands.spawn((
+        Spawner,
+        Position::from(Vec2::new((42. / 2.) - 1., 0.)),
+        SpawnerArea(Vec2::new(1., 21./2.)),
+        SpawnerSchedule {
+            start_time: 10.,
+            end_time: 2000000.,
+            interval: 2.,
+            last_spawn: 0.,
+        },
+        SpawnerDestination(objective_left),
+    ));
+
+    let points_top = vec![
+        Vec2::new(0., 0.),
+        Vec2::new(17., 0.),
+        Vec2::new(17. - paralelogram_height, paralelogram_height),
+        Vec2::new(-(17. - paralelogram_height), paralelogram_height),
+        Vec2::new(-17., 0.),
+        Vec2::new(0., 0.),
+    ];
+
+    commands.spawn((
+        Obstacle,
+        Shape::Polygon(points_top.clone()),
+        Position::from(Vec2::new(0., -21./2.))
+    ));
+
+    let mut points_bottom = vec![
+        Vec2::new(0., 0.),
+        Vec2::new(17., 0.),
+        Vec2::new(17. - paralelogram_height, -paralelogram_height),
+        Vec2::new(-(17. - paralelogram_height), -paralelogram_height),
+        Vec2::new(-17., 0.),
+        Vec2::new(0., 0.),
+    ];
+
+    points_bottom.reverse();
+
+    commands.spawn((
+        Obstacle,
+        Shape::Polygon(points_bottom),
+        Position::from(Vec2::new(0., 21./2.))
+    ));
 }
 
 fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
@@ -117,7 +326,7 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
         Vec2::new(1000., 0.),
         Vec2::new(0., 0.),
         Vec2::new(0., 148.),
-        Vec2::new(100., 148.)
+        Vec2::new(100., 148.),
     ];
 
     let mut points: Vec<Vec2> = points.iter().map(|p| p - Vec2::new(500., 0.)).collect();
@@ -129,5 +338,4 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
         Shape::Polygon(points),
         Position::from(Vec2::new(0., 0.))
     ));
-
 }

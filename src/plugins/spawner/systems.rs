@@ -19,7 +19,7 @@ pub fn add_mesh_to_obstacles(
     for (entity, area) in spawners.iter() {
         let area = area.0 * config.pixels_per_meter;
 
-        let material = materials.add(Color::from(YELLOW_100));
+        let material = materials.add(Color::from(YELLOW_100).with_alpha(0.5));
         let mesh = meshes.add(Rectangle::new(area.x * 2., area.y * 2.));
 
         commands.entity(entity).insert((
