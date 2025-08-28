@@ -226,7 +226,7 @@ pub fn compute_proximity_map(
                 .filter_map(|(_, v)| v.to_owned())
                 .map(|x| x.value()).sum();
 
-                let base_repulsion = 250.;
+                let base_repulsion = 20.;
                 let ratio = 0.5;
 
                 match value_at_cell {

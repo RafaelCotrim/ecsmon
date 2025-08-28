@@ -14,6 +14,6 @@ pub struct FlowFieldConstants{
 
 impl Default for FlowFieldConstants {
     fn default() -> Self {
-        Self { influence_radius_multiplier: 100., kernel_radius_overflow:10. }
+        Self { influence_radius_multiplier: 10., kernel_radius_overflow:10. }
     }
 }

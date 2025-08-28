@@ -75,13 +75,12 @@ fn main() {
     //     .add_systems(Startup, setup)
     //     .run();
 
-    // narrow_opening_app(&mut app);
-    corridor_app(&mut app);
+    narrow_opening_app(&mut app);
+    // corridor_app(&mut app);
     app.run();
-
 }
 
-fn narrow_opening_app(app: &mut App){
+fn narrow_opening_app(app: &mut App) {
     app.add_plugins(ECSMosDefaultPlugins)
         .add_plugins(KinematicsPlugin)
         .add_plugins(SimpleObjective)
@@ -129,13 +128,22 @@ fn narrow_opening_setup(mut commands: Commands, mut materials: ResMut<Assets<Col
         Position::from(Vec2::new((-21. / 2.) + 1., 0.)),
         SpawnerArea(Vec2::new(1., 21./2.)),
         SpawnerSchedule {
-            start_time: 10.,
+            start_time: 0.,
             end_time: 2000000.,
             interval: 0.8,
             last_spawn: 0.,
         },
         SpawnerDestination(objective),
     ));
+
+    // commands.spawn((
+    //     Agent,
+    //     Shape::Circle(0.3),
+    //     Speed::new(Vec2::new(0.0, 0.)),
+    //     MeshMaterial2d(materials.add(Color::from(BLUE_500))),
+    //     Position::from(Vec2::new(-10., 0.)),
+    //     Destination(objective)
+    // ));
 
     let points = vec![
         Vec2::new(0., 0.),
@@ -148,17 +156,17 @@ fn narrow_opening_setup(mut commands: Commands, mut materials: ResMut<Assets<Col
     commands.spawn((
         Obstacle,
         Shape::Polygon(points.clone()),
-        Position::from(Vec2::new(0., 1.5))
+        Position::from(Vec2::new(0., 1.5)),
     ));
 
     commands.spawn((
         Obstacle,
         Shape::Polygon(points),
-        Position::from(Vec2::new(0., -10.5))
+        Position::from(Vec2::new(0., -10.5)),
     ));
 }
 
-fn corridor_app(app: &mut App){
+fn corridor_app(app: &mut App) {
     app.add_plugins(ECSMosDefaultPlugins)
         .add_plugins(KinematicsPlugin)
         .add_plugins(SimpleObjective)
@@ -192,7 +200,7 @@ fn corridor_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMate
     commands.insert_resource(SimulationConfiguration::default());
 
     let paralelogram_height = 7.;
-    
+
     let objective_right = commands
         .spawn((
             Objective,
@@ -216,7 +224,7 @@ fn corridor_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMate
     commands.spawn((
         Spawner,
         Position::from(Vec2::new((-42. / 2.) + 1., 0.)),
-        SpawnerArea(Vec2::new(1., 21./2.)),
+        SpawnerArea(Vec2::new(1., 21. / 2.)),
         SpawnerSchedule {
             start_time: 10.,
             end_time: 2000000.,
@@ -229,7 +237,7 @@ fn corridor_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMate
     commands.spawn((
         Spawner,
         Position::from(Vec2::new((42. / 2.) - 1., 0.)),
-        SpawnerArea(Vec2::new(1., 21./2.)),
+        SpawnerArea(Vec2::new(1., 21. / 2.)),
         SpawnerSchedule {
             start_time: 10.,
             end_time: 2000000.,
@@ -251,7 +259,7 @@ fn corridor_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMate
     commands.spawn((
         Obstacle,
         Shape::Polygon(points_top.clone()),
-        Position::from(Vec2::new(0., -21./2.))
+        Position::from(Vec2::new(0., -21. / 2.)),
     ));
 
     let mut points_bottom = vec![
@@ -268,7 +276,7 @@ fn corridor_setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMate
     commands.spawn((
         Obstacle,
         Shape::Polygon(points_bottom),
-        Position::from(Vec2::new(0., 21./2.))
+        Position::from(Vec2::new(0., 21. / 2.)),
     ));
 }
 
@@ -332,10 +340,10 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     let mut points: Vec<Vec2> = points.iter().map(|p| p - Vec2::new(500., 0.)).collect();
     points.reverse();
 
-    let points = points.iter().map(|p| p /10.).collect();
+    let points = points.iter().map(|p| p / 10.).collect();
     commands.spawn((
         Obstacle,
         Shape::Polygon(points),
-        Position::from(Vec2::new(0., 0.))
+        Position::from(Vec2::new(0., 0.)),
     ));
 }
